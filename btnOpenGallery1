@@ -1,0 +1,122 @@
+class MainActivity : AppCompatActivity() {
+
+private  val OPEN_GALLERY = 1
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        println("onCreate!!!")
+
+
+        val btn_toast = findViewById(R.id.btn_toast) as Button
+        btn_toast.setOnClickListener {
+            makeText(this, "hello loveang!!!", Toast.LENGTH_LONG).show()
+        }
+
+        val btn_dialog = findViewById(R.id.btn_dialog) as Button
+        btn_dialog.setOnClickListener {
+            // Finally, make the alert dialog using builder
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("App종료")
+            builder.setMessage("종료하시겠습니까?")
+            builder.setPositiveButton("YES") { dialog, which ->
+                makeText(this, "bye jongwon", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            builder.setNegativeButton("No") { dialog, which ->
+                makeText(this, "gogo", Toast.LENGTH_LONG).show()
+            }
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
+
+        //세번째버튼
+        val button2 = findViewById<Button>(R.id.btn_dialog2)
+        button2.setOnClickListener {
+            val myDialog = MyDialog()
+            myDialog.show(supportFragmentManager, "123")
+            // This calls onCreateDialog
+            // Don't worry about the strange looking 123
+            // We will find out about this in chapter 18
+        }
+
+        //open gallery button
+        openGallery_btton.setOnClickListener { openGallery() }
+
+
+
+    }//onCreate
+
+    //open Gallery function
+    private  fun openGallery(){
+        val intent: Intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.setType("image/*")
+        startActivityForResult(intent, OPEN_GALLERY)
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK){
+            if (requestCode == OPEN_GALLERY  && data != null){
+                val selectedPhotoUri = data.data
+                try {
+                    selectedPhotoUri?.let {
+                        if(Build.VERSION.SDK_INT < 28) {
+                            val bitmap = MediaStore.Images.Media.getBitmap(
+                                this.contentResolver,
+                                selectedPhotoUri
+                            )
+                            imageView.setImageBitmap(bitmap)
+                        } else {
+                            val source = ImageDecoder.createSource(this.contentResolver, selectedPhotoUri)
+                            val bitmap = ImageDecoder.decodeBitmap(source)
+                            imageView.setImageBitmap(bitmap)
+                            println(">>gallery")
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    println(">>gallery error")
+                }
+            }
+        }else{
+            Log.d("ActivityResult", "something wrong")
+            println(">>gallery wrong")
+        }
+    }
+    
+    override fun onStart() {
+        super.onStart()
+        println(">>onstart")
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        println(">>onresume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println(">>onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println(">>onstop")
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println(">>ondestory")
+    }
+
+
+
+}//class MainActivity
+
+
+
